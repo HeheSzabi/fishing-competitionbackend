@@ -6,31 +6,9 @@ steps:
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/fishing-competition-server']
-  
-  # Deploy container image to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-    - 'run'
-    - 'deploy'
-    - 'fishing-competition-server'
-    - '--image'
-    - 'gcr.io/$PROJECT_ID/fishing-competition-server'
-    - '--region'
-    - 'us-central1'
-    - '--platform'
-    - 'managed'
-    - '--allow-unauthenticated'
-    - '--port'
-    - '3000'
-    - '--memory'
-    - '512Mi'
-    - '--cpu'
-    - '1'
-    - '--max-instances'
-    - '10'
-    - '--set-env-vars'
-    - 'NODE_ENV=production'
+
+options:
+  logging: NONE
 
 images:
   - 'gcr.io/$PROJECT_ID/fishing-competition-server'
