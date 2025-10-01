@@ -4,13 +4,13 @@ const jwt = require('jsonwebtoken');
 const emailService = require('../services/email.service');
 const router = express.Router();
 
-// Database connection
+// Database connection - Supabase configuration
 const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'fishing_competition',
-  password: process.env.DB_PASSWORD || 'password',
-  port: process.env.DB_PORT || 5433,
+  user: process.env.DB_USER || 'postgres.ttbirrudgrrfvtgsvzxc',
+  host: process.env.DB_HOST || 'aws-1-eu-north-1.pooler.supabase.com',
+  database: process.env.DB_NAME || 'postgres',
+  password: process.env.DB_PASSWORD || 'Szabolcska86!',
+  port: process.env.DB_PORT || 6543,
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
