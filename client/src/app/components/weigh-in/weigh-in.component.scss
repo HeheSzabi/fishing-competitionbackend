@@ -1,0 +1,677 @@
+.weigh-in-container {
+  min-height: 100vh;
+  padding-top: 235px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  background: url('..//..//..//assets/csonak.jpg') center center;
+  background-size: cover;
+  background-position: fit;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
+  }
+}
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 300px;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
+  
+  h1 {
+    margin: 0;
+    color: #000000;
+    font-size: 2.5rem;
+    font-weight: 600;
+  }
+
+  button {
+    background: transparent;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    color: #000000;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+  z-index: 1;
+  
+  p {
+    margin-top: 20px;
+    color: #000000;
+    font-weight: 500;
+  }
+}
+
+.add-weigh-in-card {
+  margin-bottom: 30px;
+  background: transparent !important;
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 16px !important;
+  position: relative;
+  z-index: 1;
+
+  mat-card-header {
+    mat-card-title {
+      color: #000000 !important;
+      font-weight: 600;
+    }
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    
+    .full-width {
+      flex: 1;
+    }
+    
+    .weight-field {
+      min-width: 200px;
+    }
+  }
+  
+  .participant-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: transparent;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    
+    mat-icon {
+      color: #000000;
+    }
+    
+    span {
+      color: #000000;
+    }
+    
+    .sector-badge {
+      margin-left: auto;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #000000;
+      text-align: center;
+      min-width: 50px;
+      
+      // Color coding for different sectors
+      &[data-sector="A"], &.sector-A {
+        background: rgba(255, 99, 132, 0.2);
+        border-color: rgba(255, 99, 132, 0.4);
+        color: #ff6384;
+      }
+      
+      &[data-sector="B"], &.sector-B {
+        background: rgba(54, 162, 235, 0.2);
+        border-color: rgba(54, 162, 235, 0.4);
+        color: #36a2eb;
+      }
+      
+      &[data-sector="C"], &.sector-C {
+        background: rgba(255, 205, 86, 0.2);
+        border-color: rgba(255, 205, 86, 0.4);
+        color: #ffcd56;
+      }
+      
+      &[data-sector="D"], &.sector-D {
+        background: rgba(75, 192, 192, 0.2);
+        border-color: rgba(75, 192, 192, 0.4);
+        color: #4bc0c0;
+      }
+      
+      &[data-sector="E"], &.sector-E {
+        background: rgba(153, 102, 255, 0.2);
+        border-color: rgba(153, 102, 255, 0.4);
+        color: #9966ff;
+      }
+      
+      // No sector assigned
+      &[data-sector="Nincs szektor"], &.sector-null, &.sector-undefined {
+        background: rgba(158, 158, 158, 0.2);
+        border-color: rgba(158, 158, 158, 0.4);
+        color: #9e9e9e;
+      }
+    }
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+
+    button {
+      background: transparent;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      color: #000000;
+      font-weight: 600;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      &[color="primary"] {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+}
+
+.no-participants-card {
+  margin-bottom: 30px;
+  background: transparent !important;
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 16px !important;
+  position: relative;
+  z-index: 1;
+  
+  .no-participants-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #000000;
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+    
+    h3 {
+      color: #000000;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    
+    p {
+      color: #000000;
+      margin: 0;
+      opacity: 0.8;
+    }
+  }
+}
+
+.weighing-sheet {
+  position: relative;
+  z-index: 1;
+}
+
+.sheet-card {
+  background: transparent !important;
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 16px !important;
+  margin-bottom: 30px;
+
+  mat-card-header {
+    position: relative;
+    
+    mat-card-title {
+      color: #000000 !important;
+      font-weight: 600;
+      font-size: 1.5rem;
+    }
+
+    mat-card-subtitle {
+      color: #000000 !important;
+      opacity: 0.7;
+    }
+    
+    .header-actions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      
+      .add-measurement-btn {
+        background: rgba(255, 152, 0, 0.95);
+        color: white;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        
+        mat-icon {
+          margin-right: 4px;
+        }
+        
+        &:hover {
+          background: rgba(255, 152, 0, 1);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(255, 152, 0, 0.5);
+        }
+      }
+      
+      button {
+        color: #000000;
+        opacity: 0.7;
+        
+        &:hover {
+          opacity: 1;
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.weighing-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #000000;
+
+  thead {
+    background: transparent;
+    backdrop-filter: blur(15px);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+
+    th {
+      padding: 16px 12px;
+      text-align: center;
+      font-weight: 600;
+      color: #000000;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &.highlight {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      td {
+        padding: 16px 12px;
+        vertical-align: top;
+      }
+    }
+  }
+
+  .name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #000000;
+    }
+  }
+
+  .sector-cell {
+    .sector-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #000000;
+      text-align: center;
+      min-width: 60px;
+      
+      // Color coding for different sectors
+      &[data-sector="A"], &.sector-A {
+        background: rgba(255, 99, 132, 0.2);
+        border-color: rgba(255, 99, 132, 0.4);
+        color: #ff6384;
+      }
+      
+      &[data-sector="B"], &.sector-B {
+        background: rgba(54, 162, 235, 0.2);
+        border-color: rgba(54, 162, 235, 0.4);
+        color: #36a2eb;
+      }
+      
+      &[data-sector="C"], &.sector-C {
+        background: rgba(255, 205, 86, 0.2);
+        border-color: rgba(255, 205, 86, 0.4);
+        color: #ffcd56;
+      }
+      
+      &[data-sector="D"], &.sector-D {
+        background: rgba(75, 192, 192, 0.2);
+        border-color: rgba(75, 192, 192, 0.4);
+        color: #4bc0c0;
+      }
+      
+      &[data-sector="E"], &.sector-E {
+        background: rgba(153, 102, 255, 0.2);
+        border-color: rgba(153, 102, 255, 0.4);
+        color: #9966ff;
+      }
+      
+      // No sector assigned
+      &[data-sector="Nincs szektor"], &.sector-null, &.sector-undefined {
+        background: rgba(158, 158, 158, 0.2);
+        border-color: rgba(158, 158, 158, 0.4);
+        color: #9e9e9e;
+      }
+    }
+  }
+
+  .weighins-cell {
+    min-width: 200px;
+
+    .weighins-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .weighin-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: transparent;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 6px;
+      font-size: 0.85rem;
+
+      .weighin-number {
+        font-weight: 600;
+        color: #000000;
+        opacity: 0.7;
+      }
+
+      .weighin-weight {
+        font-weight: 600;
+        color: #000000;
+      }
+
+      .weighin-time {
+        color: #000000;
+        opacity: 0.6;
+        font-size: 0.8rem;
+      }
+
+      .delete-btn {
+        margin-left: auto;
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    .no-weighins {
+      color: #000000;
+      opacity: 0.5;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+  }
+
+  .total-cell {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #000000;
+  }
+
+  .rank-cell {
+    .rank-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: transparent;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1rem;
+      min-width: 40px;
+      text-align: center;
+
+      // Sector-based color coding
+      &[data-sector="A"], &.sector-A {
+        background: rgba(255, 99, 132, 0.3);
+        border-color: rgba(255, 99, 132, 0.6);
+        color: #ff6384;
+      }
+      
+      &[data-sector="B"], &.sector-B {
+        background: rgba(54, 162, 235, 0.3);
+        border-color: rgba(54, 162, 235, 0.6);
+        color: #36a2eb;
+      }
+      
+      &[data-sector="C"], &.sector-C {
+        background: rgba(255, 205, 86, 0.3);
+        border-color: rgba(255, 205, 86, 0.6);
+        color: #ffcd56;
+      }
+      
+      &[data-sector="D"], &.sector-D {
+        background: rgba(75, 192, 192, 0.3);
+        border-color: rgba(75, 192, 192, 0.6);
+        color: #4bc0c0;
+      }
+      
+      &[data-sector="E"], &.sector-E {
+        background: rgba(153, 102, 255, 0.3);
+        border-color: rgba(153, 102, 255, 0.6);
+        color: #9966ff;
+      }
+      
+      &[data-sector="F"], &.sector-F {
+        background: rgba(255, 159, 64, 0.3);
+        border-color: rgba(255, 159, 64, 0.6);
+        color: #ff9f40;
+      }
+    }
+  }
+
+  .points-cell {
+    .points {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #000000;
+    }
+  }
+
+  .result-cell {
+    .result-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .overall-rank {
+        font-weight: bold;
+        color: #000000;
+        font-size: 1rem;
+      }
+
+      .overall-points {
+        color: #000000;
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+.sector-summaries {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.sector-summary-card {
+  background: transparent !important;
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 16px !important;
+
+  mat-card-header {
+    mat-card-title {
+      color: #000000 !important;
+      font-weight: 600;
+    }
+
+    mat-card-subtitle {
+      color: #000000 !important;
+      opacity: 0.7;
+    }
+  }
+
+  .sector-ranking {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .rank-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: transparent;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+
+      .rank-number {
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #000000;
+        min-width: 30px;
+      }
+
+      .participant-name {
+        flex: 1;
+        font-weight: 600;
+        color: #000000;
+      }
+
+      .participant-weight {
+        color: #000000;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .participant-points {
+        font-weight: 600;
+        color: #000000;
+        padding: 4px 8px;
+        background: transparent;
+        border: 1px solid rgba(0, 0, 0, 0.3);
+        border-radius: 6px;
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .table-container {
+    overflow-x: scroll;
+  }
+
+  .weighing-table {
+    font-size: 0.85rem;
+
+    th, td {
+      padding: 10px 8px;
+    }
+  }
+  
+  .sector-summaries {
+    grid-template-columns: 1fr;
+  }
+  
+}

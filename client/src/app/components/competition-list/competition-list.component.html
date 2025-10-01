@@ -1,0 +1,96 @@
+<div class="competition-list-container">
+  <!-- Back Button -->
+  <button mat-raised-button class="back-button" routerLink="/">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Vissza a Kezdőlapra</span>
+  </button>
+
+
+  <div class="page-content">
+    <div class="page-title">
+      <h1>Horgászversenyek</h1>
+    </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Versenyek betöltése...</p>
+  </div>
+
+  <div *ngIf="!loading && competitions.length === 0" class="empty-state">
+    <mat-icon>fishing</mat-icon>
+    <h2>Nincs esemény létrehozva</h2>
+    <p>Hozd létre az első horgászversenyedet, hogy elkezdhesd!</p>
+    <button *ngIf="isAdmin()" mat-raised-button color="primary" (click)="createNewCompetition()">
+      Verseny létrehozása
+    </button>
+  </div>
+
+  <div *ngIf="!loading && competitions.length > 0" class="competitions-grid">
+    <mat-card *ngFor="let competition of competitions" class="competition-card">
+      <mat-card-header>
+        <mat-card-title>{{ competition.name }}</mat-card-title>
+        <mat-card-subtitle>{{ formatDate(competition.date) }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <!-- Competition Cover Image -->
+      <div *ngIf="competition.cover_image" class="competition-cover-image">
+        <img [src]="getCoverImageUrl(competition.cover_image)" 
+             [alt]="competition.name + ' borítókép'"
+             class="cover-image">
+      </div>
+      
+      <mat-card-content>
+        <p *ngIf="competition.description">{{ competition.description }}</p>
+        
+        <div class="competition-stats">
+          <div class="stat">
+            <mat-icon>group</mat-icon>
+            <span>{{ competition.participant_count || 0 }} résztvevő</span>
+          </div>
+          <div class="stat">
+            <mat-icon>category</mat-icon>
+            <span>{{ competition.sector_count || 0 }} szektor</span>
+          </div>
+        </div>
+      </mat-card-content>
+      
+      <mat-card-actions>
+        <button mat-button (click)="viewCompetition(competition)">
+          <mat-icon>visibility</mat-icon>
+          Megtekintés
+        </button>
+        
+        <!-- Registration Button for Regular Users -->
+        <button 
+          *ngIf="isAuthenticated() && !isAdmin() && !isRegisteredForCompetition(competition.id)" 
+          mat-raised-button 
+          color="primary" 
+          (click)="registerForCompetition(competition, $event)">
+          <mat-icon>how_to_reg</mat-icon>
+          Feliratkozok a versenyre
+        </button>
+        
+        <!-- Withdrawal Button -->
+        <button 
+          *ngIf="isAuthenticated() && !isAdmin() && isRegisteredForCompetition(competition.id)" 
+          mat-raised-button 
+          color="accent" 
+          (click)="withdrawFromCompetition(competition, $event)">
+          <mat-icon>cancel</mat-icon>
+          Lemondás
+        </button>
+        
+        <!-- Admin Buttons -->
+        <button *ngIf="isAdmin()" mat-button (click)="editCompetition(competition)">
+          <mat-icon>edit</mat-icon>
+          Szerkesztés
+        </button>
+        <button *ngIf="isAdmin()" mat-button color="warn" (click)="deleteCompetition(competition)">
+          <mat-icon>delete</mat-icon>
+          Törlés
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+  </div>
+</div>

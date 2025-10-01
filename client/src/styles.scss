@@ -1,0 +1,97 @@
+
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$orange-palette,
+      tertiary: mat.$cyan-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+}
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Global Back Button Styling */
+.back-button {
+  position: fixed !important;
+  top: 180px !important;
+  right: 55px !important;
+  left: auto !important;
+  z-index: 1000 !important;
+  background: transparent !important;
+  backdrop-filter: blur(10px);
+  color: #ff9800 !important;
+  font-weight: 600 !important;
+  border: 2px solid #ff9800 !important;
+  border-radius: 50px !important;
+  padding: 10px 24px !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3) !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px;
+  
+  mat-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+  
+  &:hover {
+    background: #ff9800 !important;
+    color: white !important;
+    transform: translateX(5px) !important;
+    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.6) !important;
+  }
+  
+  &:active {
+    transform: translateX(5px) scale(0.98) !important;
+  }
+}
+
+/* Global Secondary Button Styling */
+mat-stroked-button {
+  background: #ff6b35 !important;
+  color: #ffffff !important;
+  border: 2px solid #ff6b35 !important;
+  padding: 16px 32px !important;
+  font-size: 2rem !important;
+  border-radius: 12px !important;
+  
+  &:hover {
+    background: #e55a2b !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4) !important;
+  }
+  
+  mat-icon {
+    margin-right: 8px !important;
+  }
+}

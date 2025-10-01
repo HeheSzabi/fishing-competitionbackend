@@ -1,0 +1,153 @@
+<div class="profile-completion-container">
+  <!-- Back Button -->
+  <button mat-raised-button class="back-button" routerLink="/competitions">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Vissza a Versenyekhez</span>
+  </button>
+
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>person</mat-icon>
+        Profil Létrehozása
+      </mat-card-title>
+      <mat-card-subtitle>Töltsd ki profilodat, hogy részt vehess a versenyeken</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Photo Upload Section -->
+        <div class="photo-section">
+          <h3>Profilkép</h3>
+          <div class="photo-upload-area">
+            <div class="photo-preview" *ngIf="photoPreview">
+              <img [src]="photoPreview" alt="Profile photo">
+              <button 
+                mat-icon-button 
+                type="button"
+                class="remove-photo-btn" 
+                (click)="removePhoto()"
+                matTooltip="Fotó törlése">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            
+            <div class="photo-upload-placeholder" *ngIf="!photoPreview">
+              <mat-icon>photo_camera</mat-icon>
+              <p>Kattints vagy húzd ide a képet</p>
+            </div>
+            
+            <input 
+              type="file" 
+              #fileInput
+              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+              (change)="onFileSelected($event)"
+              style="display: none">
+            
+            <button 
+              mat-raised-button 
+              type="button"
+              color="primary" 
+              (click)="fileInput.click()"
+              class="upload-btn">
+              <mat-icon>upload</mat-icon>
+              {{ photoPreview ? 'Fotó Cseréje' : 'Fotó Feltöltése' }}
+            </button>
+            <p class="hint">Maximum 5MB, formátumok: JPEG, PNG, GIF, WEBP</p>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Contact Information -->
+        <div class="contact-section">
+          <h3>Kapcsolattartási Adatok</h3>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email cím</mat-label>
+            <input matInput [value]="currentUser?.email" readonly>
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-hint>Az email cím nem módosítható</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Telefonszám</mat-label>
+            <input matInput type="tel" formControlName="phone" placeholder="+36 30 123 4567">
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error *ngIf="profileForm.get('phone')?.hasError('pattern')">
+              Érvénytelen telefonszám formátum
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Address Information -->
+        <div class="address-section">
+          <h3>Cím</h3>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Utca, házszám *</mat-label>
+            <input matInput formControlName="streetAddress" placeholder="Pl: Fő utca 12">
+            <mat-icon matPrefix>home</mat-icon>
+            <mat-error *ngIf="profileForm.get('streetAddress')?.hasError('required')">
+              A cím megadása kötelező
+            </mat-error>
+          </mat-form-field>
+
+          <div class="address-row">
+            <mat-form-field appearance="outline" class="city-field">
+              <mat-label>Város *</mat-label>
+              <input matInput formControlName="city" placeholder="Pl: Budapest">
+              <mat-icon matPrefix>location_city</mat-icon>
+              <mat-error *ngIf="profileForm.get('city')?.hasError('required')">
+                A város megadása kötelező
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="postal-field">
+              <mat-label>Irányítószám *</mat-label>
+              <input matInput formControlName="postalCode" placeholder="1234">
+              <mat-icon matPrefix>markunread_mailbox</mat-icon>
+              <mat-error *ngIf="profileForm.get('postalCode')?.hasError('required')">
+                Az irányítószám megadása kötelező
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Ország *</mat-label>
+            <input matInput formControlName="country" placeholder="Hungary">
+            <mat-icon matPrefix>public</mat-icon>
+            <mat-error *ngIf="profileForm.get('country')?.hasError('required')">
+              Az ország megadása kötelező
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+          <button 
+            mat-button 
+            type="button"
+            (click)="skipForNow()">
+            Kihagyás egyelőre
+          </button>
+          
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit"
+            [disabled]="isLoading || profileForm.invalid">
+            <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+            <span *ngIf="!isLoading">Profil Mentése</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

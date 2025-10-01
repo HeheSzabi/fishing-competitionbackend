@@ -1,0 +1,26 @@
+<mat-toolbar color="transparent" class="app-header">
+  <div class="header-content">
+    <div class="logo-section">
+      <img src="../assets/logo.png" class="logo-image">
+    </div>
+    <div class="nav-section">
+      <button mat-button routerLink="/" routerLinkActive="active" class="nav-button home-button">
+        <mat-icon>home</mat-icon>
+        <span>Főoldal</span>
+      </button>
+      <button *ngIf="isAdmin()" mat-button routerLink="/competitions/new" routerLinkActive="active" class="nav-button new-competition-button">
+        <mat-icon>add</mat-icon>
+        <span>Új verseny létrehozása</span>
+      </button>
+      <button mat-button color="warn" class="nav-button sign-out-button" (click)="logout()" [style.display]="isAuthenticated() ? 'inline-flex' : 'none'">
+        <mat-icon>logout</mat-icon>
+        <span>Kijelentkezés</span>
+      </button>
+      
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  <router-outlet></router-outlet>
+</div>

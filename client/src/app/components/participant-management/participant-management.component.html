@@ -1,0 +1,195 @@
+<div class="participant-management-container">
+  <div class="header">
+    <h1>Résztvevők Kezelése</h1>
+    <button mat-raised-button color="primary" (click)="toggleAddForm()" [disabled]="availableSectors.length === 0">
+      <mat-icon>person_add</mat-icon>
+      Résztvevő Hozzáadása
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Résztvevők betöltése...</p>
+  </div>
+
+  <!-- Add Participant Form -->
+  <mat-card *ngIf="showAddForm" class="add-participant-card">
+    <mat-card-header>
+      <mat-card-title>Új Résztvevő Hozzáadása</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="addParticipantForm" (ngSubmit)="onSubmitAddParticipant()">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Résztvevő Neve</mat-label>
+            <input matInput formControlName="name" placeholder="Adja meg a résztvevő nevét">
+            <mat-error *ngIf="addParticipantForm.get('name')?.hasError('required')">
+              {{ getErrorMessage('name') }}
+            </mat-error>
+            <mat-error *ngIf="addParticipantForm.get('name')?.hasError('minlength')">
+              {{ getErrorMessage('name') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Szektor</mat-label>
+            <mat-select formControlName="sector_id">
+              <mat-option *ngFor="let sector of availableSectors" [value]="sector.id">
+                Szektor {{ sector.name }} ({{ sector.available_spots }} hely elérhető)
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="addParticipantForm.get('sector_id')?.hasError('required')">
+              {{ getErrorMessage('sector_id') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="toggleAddForm()">Mégse</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="addParticipantForm.invalid">
+            Résztvevő Hozzáadása
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- No Available Sectors Message -->
+  <mat-card *ngIf="!loading && availableSectors.length === 0" class="no-sectors-card">
+    <mat-card-content>
+      <div class="no-sectors-message">
+        <mat-icon>warning</mat-icon>
+        <h3>Nincs Elérhető Szektor</h3>
+        <p>Minden szektor tele van. Nem lehet több résztvevőt hozzáadni.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Sectors and Participants -->
+  <div *ngIf="!loading && competitionDetails" class="sectors-container">
+    <mat-card *ngFor="let sector of competitionDetails.sectors" class="sector-card">
+      <mat-card-header>
+        <mat-card-title>Szektor {{ sector.name }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ getParticipantsBySector(sector.name).length }} / {{ sector.max_participants }} résztvevő
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div *ngIf="getParticipantsBySector(sector.name).length === 0" class="empty-sector">
+          <mat-icon>person_off</mat-icon>
+          <p>Nincs résztvevő ebben a szektorban</p>
+        </div>
+
+        <div *ngIf="getParticipantsBySector(sector.name).length > 0" class="participants-list">
+          <div *ngFor="let participant of getParticipantsBySector(sector.name)" class="participant-item">
+            <div class="participant-info">
+              <mat-icon>person</mat-icon>
+              <span class="participant-name">{{ participant.name }}</span>
+            </div>
+            
+            <div class="participant-actions">
+              <mat-form-field appearance="outline" class="sector-select">
+                <mat-label>Szektor Változtatás</mat-label>
+                <mat-select [value]="participant.sector_id" 
+                           (selectionChange)="moveParticipant(participant, $event.value)">
+                  <mat-option *ngFor="let sector of availableSectors" [value]="sector.id">
+                    Szektor {{ sector.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              
+              <button mat-icon-button color="warn" (click)="deleteParticipant(participant)" 
+                      matTooltip="Résztvevő eltávolítása">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Comprehensive Participant Table -->
+  <div *ngIf="!loading && competitionDetails && competitionDetails.participants.length > 0" class="participant-table-container">
+    <mat-card class="participant-table-card">
+      <mat-card-header>
+        <div class="header-content">
+          <div class="header-text">
+            <mat-card-title>Résztvevők Teljes Listája</mat-card-title>
+            <mat-card-subtitle>Részletes eredmények és statisztikák</mat-card-subtitle>
+          </div>
+          <div class="export-actions">
+            <button mat-raised-button color="accent" (click)="exportToCSV()" class="export-btn">
+              <mat-icon>file_download</mat-icon>
+              CSV Export
+            </button>
+            <button mat-raised-button color="primary" (click)="exportToExcel()" class="export-btn">
+              <mat-icon>table_chart</mat-icon>
+              Excel Export
+            </button>
+          </div>
+        </div>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="table-container">
+          <table class="participant-table">
+            <thead>
+              <tr>
+                <th>Név</th>
+                <th>Szektor</th>
+                <th>Mérlegelések</th>
+                <th>Összfogás (g)</th>
+                <th>Szektorhelyezés</th>
+                <th>Összetett Eredmény</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let participant of getSortedParticipants()" class="participant-row">
+                <td class="name-cell">
+                  <mat-icon>person</mat-icon>
+                  <span>{{ participant.name }}</span>
+                </td>
+                <td class="sector-cell">
+                  <span class="sector-badge" 
+                        [ngClass]="'sector-' + participant.sector_name"
+                        [attr.data-sector]="participant.sector_name">
+                    {{ participant.sector_name || 'Nincs szektor' }}
+                  </span>
+                </td>
+                <td class="weighins-cell">
+                  <div class="weighins-list">
+                    <div *ngFor="let weighIn of getWeighInsForParticipant(participant.id); let i = index" 
+                         class="weighin-item">
+                      <span class="weighin-number">{{ i + 1 }}.</span>
+                      <span class="weighin-weight">{{ formatWeight(weighIn.weight_grams) }}</span>
+                      <span class="weighin-time">{{ formatTime(weighIn.created_at) }}</span>
+                    </div>
+                    <div *ngIf="getWeighInsForParticipant(participant.id).length === 0" class="no-weighins">
+                      <span>Nincs mérés</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="total-cell">
+                  <strong>{{ getTotalWeightForParticipant(participant.id) }} g</strong>
+                </td>
+                <td class="rank-cell">
+                  <span class="rank-badge rank-{{ getSectorRank(participant) }}">
+                    {{ getSectorRank(participant) }}.
+                  </span>
+                </td>
+                <td class="result-cell">
+                  <div class="result-info">
+                    <span class="overall-rank">{{ getOverallRank(participant) }}. helyezés</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

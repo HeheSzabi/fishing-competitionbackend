@@ -1,0 +1,139 @@
+<div class="auth-modal-container">
+  <div class="auth-header">
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-tab-group class="auth-tabs">
+    <!-- Login Tab -->
+    <mat-tab label="Belépés">
+      <div class="auth-content">
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="Add meg az email címed">
+            <mat-icon matSuffix>email</mat-icon>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+              Az email cím megadása kötelező
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+              Kérlek adj meg egy érvényes email címet
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Jelszó</mat-label>
+            <input matInput type="password" formControlName="password" placeholder="Add meg a jelszavad">
+            <mat-icon matSuffix>lock</mat-icon>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+              A jelszó megadása kötelező
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+              A jelszónak legalább 6 karakter hosszúnak kell lennie
+            </mat-error>
+          </mat-form-field>
+
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <button mat-raised-button 
+                  color="primary" 
+                  type="submit" 
+                  class="auth-button"
+                  [disabled]="loginForm.invalid || isLoading">
+            <mat-icon *ngIf="!isLoading">login</mat-icon>
+            <mat-icon *ngIf="isLoading" class="spinning">refresh</mat-icon>
+            {{ isLoading ? 'Belépés...' : 'Belépés' }}
+          </button>
+        </form>
+      </div>
+    </mat-tab>
+
+    <!-- Register Tab -->
+    <mat-tab label="Regisztrálás">
+      <div class="auth-content">
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
+          <div class="name-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Keresztnév</mat-label>
+              <input matInput formControlName="firstName" placeholder="Keresztnév">
+              <mat-error *ngIf="registerForm.get('firstName')?.hasError('required')">
+                A keresztnév megadása kötelező
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Vezetéknév</mat-label>
+              <input matInput formControlName="lastName" placeholder="Vezetéknév">
+              <mat-error *ngIf="registerForm.get('lastName')?.hasError('required')">
+                A vezetéknév megadása kötelező
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="Add meg az email címed">
+            <mat-icon matSuffix>email</mat-icon>
+            <mat-error *ngIf="registerForm.get('email')?.hasError('required')">
+              Az email cím megadása kötelező
+            </mat-error>
+            <mat-error *ngIf="registerForm.get('email')?.hasError('email')">
+              Kérlek adj meg egy érvényes email címet
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Telefonszám (opcionális)</mat-label>
+            <input matInput type="tel" formControlName="phone" placeholder="+36 30 123 4567">
+            <mat-icon matSuffix>phone</mat-icon>
+            <mat-hint>Kapcsolattartási célból</mat-hint>
+            <mat-error *ngIf="registerForm.get('phone')?.hasError('pattern')">
+              Kérlek adj meg egy érvényes telefonszámot
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Jelszó</mat-label>
+            <input matInput type="password" formControlName="password" placeholder="Hozz létre egy jelszót">
+            <mat-icon matSuffix>lock</mat-icon>
+            <mat-error *ngIf="registerForm.get('password')?.hasError('required')">
+              A jelszó megadása kötelező
+            </mat-error>
+            <mat-error *ngIf="registerForm.get('password')?.hasError('minlength')">
+              A jelszónak legalább 6 karakter hosszúnak kell lennie
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Jelszó megerősítése</mat-label>
+            <input matInput type="password" formControlName="confirmPassword" placeholder="Erősítsd meg a jelszavad">
+            <mat-icon matSuffix>lock</mat-icon>
+            <mat-error *ngIf="registerForm.get('confirmPassword')?.hasError('required')">
+              Kérlek erősítsd meg a jelszavad
+            </mat-error>
+            <mat-error *ngIf="registerForm.get('confirmPassword')?.hasError('mismatch')">
+              A jelszavak nem egyeznek
+            </mat-error>
+          </mat-form-field>
+
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <button mat-raised-button 
+                  color="primary" 
+                  type="submit" 
+                  class="auth-button"
+                  [disabled]="registerForm.invalid || isLoading">
+            <mat-icon *ngIf="!isLoading">person_add</mat-icon>
+            <mat-icon *ngIf="isLoading" class="spinning">refresh</mat-icon>
+            {{ isLoading ? 'Fiók létrehozása...' : 'Fiók létrehozása' }}
+          </button>
+        </form>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

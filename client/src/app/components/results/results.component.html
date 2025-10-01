@@ -1,0 +1,139 @@
+<div class="results-container">
+  <div class="header">
+    <h1>{{ competitionName }} - Eredmények</h1>
+    <p>Verseny eredmények és helyezések</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Eredmények betöltése...</p>
+  </div>
+
+  <!-- Competition Summary -->
+  <div *ngIf="summary && !loading" class="summary-section">
+    <mat-card class="summary-card">
+      <mat-card-header>
+        <mat-card-title>Verseny Összefoglaló</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="summary-stats">
+          <div class="stat-item">
+            <mat-icon>category</mat-icon>
+            <div>
+              <span class="stat-value">{{ summary?.sector_count || 0 }}</span>
+              <span class="stat-label">Szektorok</span>
+            </div>
+          </div>
+          
+          <div class="stat-item">
+            <mat-icon>group</mat-icon>
+            <div>
+              <span class="stat-value">{{ summary?.participant_count || 0 }}</span>
+              <span class="stat-label">Résztvevők</span>
+            </div>
+          </div>
+          
+          <div class="stat-item">
+            <mat-icon>scale</mat-icon>
+            <div>
+              <span class="stat-value">{{ formatWeight(summary?.total_catch_weight || 0) }}</span>
+              <span class="stat-label">Összes Fogás</span>
+            </div>
+          </div>
+          
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Results Tabs -->
+  <div *ngIf="!loading" class="results-tabs">
+    <mat-tab-group (selectedTabChange)="onTabChange($event.index)">
+      <!-- Overall Results Tab -->
+      <mat-tab label="Összetett Eredmények">
+        <div class="tab-content">
+          <h2>Összetett Verseny Eredmények</h2>
+          <p>Végső helyezések a szektor teljesítmények alapján</p>
+          <p class="tie-break-rule">ℹ️ Pontazonosság esetén a fogott összsúly dönt a végső eredményhirdetésben</p>
+          
+          <div *ngIf="overallResults.length === 0" class="no-results">
+            <mat-icon>emoji_events</mat-icon>
+            <h3>Még Nincsenek Eredmények</h3>
+            <p>Az eredmények itt jelennek meg, amint méréseket rögzítenek.</p>
+          </div>
+          
+          <div *ngIf="overallResults.length > 0" class="results-list">
+            <div *ngFor="let result of overallResults; let i = index" 
+                 class="result-item" 
+                 [style.border-left-color]="getRankColor(result.overall_rank)">
+              <div class="rank">
+                <span class="rank-number">{{ result.overall_rank }}</span>
+                <span class="medal">{{ getMedalIcon(result.overall_rank) }}</span>
+              </div>
+              
+              <div class="participant-info">
+                <h3>{{ result.participant_name }}</h3>
+                <p>Szektor {{ result.sector_name }} • {{ result.sector_points }} pont</p>
+              </div>
+              
+              <div class="weight-info">
+                <span class="weight">{{ formatWeight(result.total_weight) }}</span>
+                <span class="weight-label">Összsúly</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+      
+      <!-- Sector Results Tab -->
+      <mat-tab label="Szektor Eredmények">
+        <div class="tab-content">
+          <h2>Szektor Eredmények</h2>
+          <p>Egyéni szektor helyezések</p>
+          
+          <div *ngIf="getSectorNames().length === 0" class="no-results">
+            <mat-icon>category</mat-icon>
+            <h3>Nincsenek Szektor Eredmények</h3>
+            <p>Az eredmények itt jelennek meg, amint méréseket rögzítenek.</p>
+          </div>
+          
+          <div *ngIf="getSectorNames().length > 0" class="sectors-container">
+            <mat-card *ngFor="let sectorName of getSectorNames()" class="sector-card">
+              <mat-card-header>
+                <mat-card-title>Szektor {{ sectorName }}</mat-card-title>
+                <mat-card-subtitle>{{ getResultsBySector(sectorName).length }} résztvevő</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div *ngIf="getResultsBySector(sectorName).length === 0" class="empty-sector">
+                  <mat-icon>person_off</mat-icon>
+                  <p>Nincsenek résztvevők ebben a szektorban</p>
+                </div>
+                
+                <div *ngIf="getResultsBySector(sectorName).length > 0" class="sector-results">
+                  <div *ngFor="let result of getResultsBySector(sectorName)" 
+                       class="sector-result-item"
+                       [style.border-left-color]="getRankColor(result.sector_rank)">
+                    <div class="sector-rank">
+                      <span class="rank-number">{{ result.sector_rank }}</span>
+                      <span class="medal">{{ getMedalIcon(result.sector_rank) }}</span>
+                    </div>
+                    
+                    <div class="participant-info">
+                      <h4>{{ result.participant_name }}</h4>
+                    </div>
+                    
+                    <div class="weight-info">
+                      <span class="weight">{{ formatWeight(result.total_weight) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

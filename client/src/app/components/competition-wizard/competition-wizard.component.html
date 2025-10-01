@@ -1,0 +1,237 @@
+<div class="wizard-container">
+  <!-- Back Button -->
+  <button mat-raised-button class="back-button" routerLink="/competitions">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Vissza a Versenyekhez</span>
+  </button>
+
+  <div class="wizard-header">
+    <h1>{{ isEditMode ? 'Verseny szerkesztése' : 'Verseny létrehozása' }}</h1>
+    <p>{{ isEditMode ? 'Módosítsd a horgászverseny részleteit' : 'Állítsd be a horgászversenyed részleteit' }}</p>
+  </div>
+
+  <form [formGroup]="wizardForm" (ngSubmit)="onSubmit()" class="wizard-form">
+    <!-- Competition Details -->
+    <mat-card class="wizard-card">
+      <mat-card-header>
+        <mat-card-title>Verseny részletei</mat-card-title>
+        <mat-card-subtitle>Alapvető információk a versenyről</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Verseny neve</mat-label>
+            <input matInput formControlName="name" placeholder="pl. Tavaszi Horgászverseny 2024">
+            <mat-error *ngIf="wizardForm.get('name')?.hasError('required')">
+              {{ getErrorMessage('name') }}
+            </mat-error>
+            <mat-error *ngIf="wizardForm.get('name')?.hasError('minlength')">
+              {{ getErrorMessage('name') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Helyszín</mat-label>
+            <input matInput formControlName="location" placeholder="pl. Moby Dick Nagyversenytó">
+            <mat-error *ngIf="wizardForm.get('location')?.hasError('required')">
+              {{ getErrorMessage('location') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Időpont</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="wizardForm.get('date')?.hasError('required')">
+              {{ getErrorMessage('date') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Szervező</mat-label>
+            <input matInput formControlName="organizer" placeholder="pl. Dálnoki István">
+            <mat-error *ngIf="wizardForm.get('organizer')?.hasError('required')">
+              {{ getErrorMessage('organizer') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Elérhetőség</mat-label>
+            <input matInput formControlName="contact" placeholder="pl. 06302402917">
+            <mat-error *ngIf="wizardForm.get('contact')?.hasError('required')">
+              {{ getErrorMessage('contact') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nevezési díj</mat-label>
+            <input matInput formControlName="entry_fee" placeholder="pl. 16,000 HUF / fő">
+            <mat-error *ngIf="wizardForm.get('entry_fee')?.hasError('required')">
+              {{ getErrorMessage('entry_fee') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Díjazás</mat-label>
+            <textarea matInput formControlName="prizes" rows="3" 
+                      placeholder="Írd le a díjazást..."></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Leírás (Description)</mat-label>
+            <textarea matInput formControlName="description" rows="3" 
+                      placeholder="Verseny leírása..."></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <div class="image-upload-container">
+            <label class="image-upload-label">Verseny borítókép</label>
+            <div class="image-upload-wrapper">
+              <input type="file" 
+                     #fileInput 
+                     (change)="onImageSelected($event)" 
+                     accept="image/*" 
+                     class="file-input"
+                     id="coverImage">
+              <label for="coverImage" class="file-upload-button">
+                <mat-icon>cloud_upload</mat-icon>
+                <span>{{ selectedImage ? 'Kép cseréje' : 'Kép feltöltése' }}</span>
+              </label>
+              <div *ngIf="selectedImage" class="image-preview">
+                <img [src]="imagePreview" alt="Borítókép előnézet">
+                <button type="button" mat-icon-button (click)="removeImage()" class="remove-image-btn">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Schedule -->
+    <mat-card class="wizard-card">
+      <mat-card-header>
+        <mat-card-title>Időbeosztás (Schedule)</mat-card-title>
+        <mat-card-subtitle>Verseny napirendje és időzítése</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Időbeosztás</mat-label>
+            <textarea matInput formControlName="schedule" rows="4" 
+                      placeholder="pl. 08:00 - Regisztráció&#10;09:00 - Verseny kezdete&#10;15:00 - Verseny vége&#10;15:30 - Díjátadás"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Rules & Equipment -->
+    <mat-card class="wizard-card">
+      <mat-card-header>
+        <mat-card-title>Szabályok és felszerelés</mat-card-title>
+        <mat-card-subtitle>Verseny szabályai és engedélyezett felszerelés</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Szabályok és felszerelés</mat-label>
+            <textarea matInput formControlName="rules_equipment" rows="4" 
+                      placeholder="pl. - Csak egy horgászbot használata engedélyezett&#10;- Mesterséges csali tilos&#10;- Minimum méret: 25 cm&#10;- Engedélyezett csalik: természetes csalik"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- General Rules -->
+    <mat-card class="wizard-card">
+      <mat-card-header>
+        <mat-card-title>Általános szabályok</mat-card-title>
+        <mat-card-subtitle>Általános verseny szabályok és feltételek</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Általános szabályok</mat-label>
+            <textarea matInput formControlName="general_rules" rows="4" 
+                      placeholder="pl. - A versenyzők kötelesek betartani a helyszín szabályait&#10;- A szervezők döntése végleges&#10;- Baleset esetén a szervezők nem vállalnak felelősséget&#10;- A verseny során tilos az alkohol fogyasztása"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Sector Configuration -->
+    <mat-card class="wizard-card">
+      <mat-card-header>
+        <mat-card-title>Szektor beállítások</mat-card-title>
+        <mat-card-subtitle>Szektorok és résztvevők száma</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Szektorok száma</mat-label>
+            <input matInput type="number" formControlName="sector_count" min="1" max="10">
+            <mat-hint>pl. 3 szektor (A, B, C)</mat-hint>
+            <mat-error *ngIf="wizardForm.get('sector_count')?.hasError('required')">
+              {{ getErrorMessage('sector_count') }}
+            </mat-error>
+            <mat-error *ngIf="wizardForm.get('sector_count')?.hasError('min')">
+              {{ getErrorMessage('sector_count') }}
+            </mat-error>
+            <mat-error *ngIf="wizardForm.get('sector_count')?.hasError('max')">
+              {{ getErrorMessage('sector_count') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Résztvevők szektoronként</mat-label>
+            <input matInput type="number" formControlName="participants_per_sector" min="1" max="10">
+            <mat-hint>Maximum résztvevők szektoronként</mat-hint>
+            <mat-error *ngIf="wizardForm.get('participants_per_sector')?.hasError('required')">
+              {{ getErrorMessage('participants_per_sector') }}
+            </mat-error>
+            <mat-error *ngIf="wizardForm.get('participants_per_sector')?.hasError('min')">
+              {{ getErrorMessage('participants_per_sector') }}
+            </mat-error>
+            <mat-error *ngIf="wizardForm.get('participants_per_sector')?.hasError('max')">
+              {{ getErrorMessage('participants_per_sector') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="summary-info">
+          <mat-icon>info</mat-icon>
+          <span>Összes résztvevő: <strong>{{ totalParticipants }}</strong></span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="wizard-actions">
+      <button mat-button type="button" (click)="onCancel()" [disabled]="loading">
+        Mégse
+      </button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="wizardForm.invalid || loading">
+        <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+        <span *ngIf="!loading">{{ isEditMode ? 'Verseny frissítése' : 'Verseny létrehozása' }}</span>
+        <span *ngIf="loading">{{ isEditMode ? 'Frissítés...' : 'Létrehozás...' }}</span>
+      </button>
+    </div>
+  </form>
+</div>

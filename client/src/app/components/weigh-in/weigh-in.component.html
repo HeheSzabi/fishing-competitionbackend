@@ -1,0 +1,194 @@
+<div class="weigh-in-container">
+  <!-- Back Button -->
+  <button mat-raised-button class="back-button" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Vissza a Versenyhez</span>
+  </button>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Mérlegelő lap betöltése...</p>
+  </div>
+
+  <!-- Add Weigh-In Form -->
+  <mat-card *ngIf="showAddForm" class="add-weigh-in-card">
+    <mat-card-header>
+      <mat-card-title>Új Mérés Rögzítése</mat-card-title>
+      <mat-card-subtitle *ngIf="!selectedParticipant">Válaszd ki a versenyzőt a legördülő listából</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="addWeighInForm" (ngSubmit)="onSubmitWeighIn()">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Versenyző Kiválasztása</mat-label>
+            <mat-select #participantSelect formControlName="participant_id" (selectionChange)="onParticipantSelected()" placeholder="Válassz egy versenyzőt...">
+              <mat-option *ngFor="let participant of competitionDetails?.participants" [value]="participant.id">
+                {{ getParticipantDisplayName(participant) }} (Szektor {{ participant.sector_name }})
+              </mat-option>
+            </mat-select>
+            <mat-hint>{{ competitionDetails?.participants?.length || 0 }} versenyző közül választhatsz</mat-hint>
+            <mat-error *ngIf="addWeighInForm.get('participant_id')?.hasError('required')">
+              Versenyző kiválasztása kötelező
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Súly (gramm)</mat-label>
+            <input #weightInput matInput type="number" formControlName="weight_grams" placeholder="pl., 1500">
+            <mat-hint>Adja meg a súlyt grammban</mat-hint>
+            <mat-error *ngIf="addWeighInForm.get('weight_grams')?.hasError('required')">
+              Súly megadása kötelező
+            </mat-error>
+            <mat-error *ngIf="addWeighInForm.get('weight_grams')?.hasError('min')">
+              A súlynak legalább 1 grammnak kell lennie
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Megjegyzések (Opcionális)</mat-label>
+            <textarea matInput formControlName="notes" rows="2" 
+                      placeholder="További megjegyzések a fogásról..."></textarea>
+          </mat-form-field>
+        </div>
+
+        <div *ngIf="selectedParticipant" class="participant-info">
+          <mat-icon>person</mat-icon>
+          <span>Rögzítés: <strong>{{ getParticipantDisplayName(selectedParticipant) }}</strong></span>
+          <span class="sector-badge" 
+                [ngClass]="'sector-' + selectedParticipant.sector_name"
+                [attr.data-sector]="selectedParticipant.sector_name">
+            Szektor {{ selectedParticipant?.sector_name }}
+          </span>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="toggleAddForm()">Mégse</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="addWeighInForm.invalid">
+            Mérés Rögzítése
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- No Participants Message -->
+  <mat-card *ngIf="!loading && competitionDetails && competitionDetails.participants.length === 0" class="no-participants-card">
+    <mat-card-content>
+      <div class="no-participants-message">
+        <mat-icon>group_off</mat-icon>
+        <h3>Nincsenek Résztvevők</h3>
+        <p>Adjon hozzá résztvevőket a versenyhez mielőtt méréseket rögzít.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Mérlegelő Lap Table -->
+  <div *ngIf="!loading && competitionDetails && competitionDetails.participants.length > 0" class="weighing-sheet">
+    <mat-card class="sheet-card">
+      <mat-card-header>
+        <mat-card-title>Verseny Mérlegelő Lap</mat-card-title>
+        <mat-card-subtitle>Összes résztvevő és mérései</mat-card-subtitle>
+        <div class="header-actions">
+          <button *ngIf="isAdmin()" mat-raised-button color="primary" (click)="toggleAddForm()" class="add-measurement-btn">
+            <mat-icon>add</mat-icon>
+            Új Mérés
+          </button>
+          <button mat-icon-button (click)="forceRefresh()" matTooltip="Kényszerített frissítés">
+            <mat-icon>refresh</mat-icon>
+          </button>
+          <button mat-icon-button (click)="refreshData()" matTooltip="Adatok frissítése">
+            <mat-icon>sync</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="table-container">
+          <table class="weighing-table">
+            <thead>
+              <tr>
+                <th>Név</th>
+                <th>Szektor</th>
+                <th>Mérlegelések</th>
+                <th>Összfogás (g)</th>
+                <th>Szektorhelyezés</th>
+                <th>Összetett Eredmény</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let participant of getSortedParticipants()" 
+                  [class.highlight]="participant.id === selectedParticipant?.id">
+                <td class="name-cell">
+                  <mat-icon>person</mat-icon>
+                  <span>{{ getParticipantDisplayName(participant) }}</span>
+                </td>
+                <td class="sector-cell">
+                  <span class="sector-badge" 
+                        [ngClass]="'sector-' + participant.sector_name"
+                        [attr.data-sector]="participant.sector_name">
+                    {{ participant.sector_name || 'Nincs szektor' }}
+                  </span>
+                </td>
+                <td class="weighins-cell">
+                  <div class="weighins-list">
+                    <div *ngFor="let weighIn of getWeighInsForParticipant(participant.id); let i = index" 
+                         class="weighin-item">
+                      <span class="weighin-number">{{ i + 1 }}.</span>
+                      <span class="weighin-weight">{{ formatWeight(weighIn.weight_grams) }}</span>
+                      <span class="weighin-time">{{ formatTime(weighIn.created_at) }}</span>
+                      <button *ngIf="isAdmin()" mat-icon-button color="warn" 
+                              (click)="deleteWeighIn(weighIn)" class="delete-btn">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                    <div *ngIf="getWeighInsForParticipant(participant.id).length === 0" class="no-weighins">
+                      <span>Nincs mérés</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="total-cell">
+                  <strong>{{ getTotalWeightForParticipant(participant.id) }} g</strong>
+                </td>
+                <td class="rank-cell">
+                  <span class="rank-badge rank-{{ getSectorRank(participant) }} sector-{{ participant.sector_name }}"
+                        [attr.data-sector]="participant.sector_name">
+                    {{ getSectorRank(participant) }}. Pont
+                  </span>
+                </td>
+                <td class="result-cell">
+                  <div class="result-info">
+                    <span class="overall-rank">{{ getOverallRank(participant) }}. helyezés</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Sector Summaries -->
+    <div class="sector-summaries">
+      <mat-card *ngFor="let sector of getSectors()" class="sector-summary-card">
+        <mat-card-header>
+          <mat-card-title>Szektor {{ sector }}</mat-card-title>
+          <mat-card-subtitle>Szektorhelyezések</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="sector-ranking">
+            <div *ngFor="let participant of getParticipantsBySector(sector)" class="rank-item">
+              <span class="rank-number">{{ getSectorRank(participant) }}. Pont</span>
+              <span class="participant-name">{{ getParticipantDisplayName(participant) }}</span>
+              <span class="participant-weight">{{ getTotalWeightForParticipant(participant.id) }} g</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

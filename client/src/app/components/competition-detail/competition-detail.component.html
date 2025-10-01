@@ -1,0 +1,329 @@
+<div class="competition-detail-container">
+  <!-- Back Button -->
+  <button mat-raised-button class="back-button" routerLink="/competitions">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Vissza a Versenyekhez</span>
+  </button>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Verseny részleteinek betöltése...</p>
+  </div>
+
+  <div *ngIf="!loading && competitionDetails" class="competition-content">
+    <!-- Competition Header -->
+    <div class="competition-header">
+      <div class="header-info">
+        <h1>{{ competitionDetails?.competition?.name }}</h1>
+        <p class="competition-date">{{ formatDate(competitionDetails?.competition?.date || '') }}</p>
+        <p *ngIf="competitionDetails?.competition?.description" class="competition-description">
+          {{ competitionDetails?.competition?.description }}
+        </p>
+      </div>
+      
+      <!-- Competition Cover Image -->
+      <div *ngIf="competitionDetails?.competition?.cover_image" class="cover-image-container">
+        <img [src]="getCoverImageUrl(competitionDetails?.competition?.cover_image)" 
+             [alt]="competitionDetails?.competition?.name + ' borítókép'"
+             class="cover-image">
+      </div>
+      
+      
+      <div class="header-actions">
+        <!-- Registration/Withdrawal Buttons for Fishermen -->
+        <button 
+          *ngIf="isAuthenticated() && !isAdmin() && !isRegistered" 
+          mat-raised-button 
+          color="primary" 
+          (click)="registerForCompetition()"
+          class="registration-btn">
+          <mat-icon>how_to_reg</mat-icon>
+          Feliratkozok a versenyre
+        </button>
+        
+        <button 
+          *ngIf="isAuthenticated() && !isAdmin() && isRegistered" 
+          mat-raised-button 
+          color="accent" 
+          (click)="withdrawFromCompetition()"
+          class="withdrawal-btn">
+          <mat-icon>cancel</mat-icon>
+          Lemondás a versenyről
+        </button>
+        
+        <!-- Admin Buttons -->
+        <button *ngIf="isAdmin()" mat-raised-button color="primary" (click)="navigateToParticipants()">
+          <mat-icon>group</mat-icon>
+          Résztvevők Kezelése
+        </button>
+        <button mat-raised-button color="accent" (click)="navigateToWeighIn()">
+          <mat-icon>scale</mat-icon>
+          Mérlegelés
+        </button>
+        <button mat-raised-button (click)="navigateToResults()">
+          <mat-icon>emoji_events</mat-icon>
+          Eredmények Megtekintése
+        </button>
+      </div>
+    </div>
+
+    <!-- Competition Summary -->
+    <div *ngIf="summary" class="summary-cards">
+      <!-- Unified Summary Card -->
+      <mat-card class="unified-summary-card">
+        <mat-card-header>
+          <mat-card-title>Verseny Áttekintés</mat-card-title>
+          <mat-card-subtitle>Szektorok és Résztvevők</mat-card-subtitle>
+          <div class="header-actions" *ngIf="isAdmin()">
+            <button mat-raised-button 
+                    [color]="areSectorsAlreadyAssigned() ? 'warn' : 'accent'" 
+                    (click)="randomAssignParticipants()" 
+                    class="random-assign-btn"
+                    [disabled]="areSectorsAlreadyAssigned()">
+              <mat-icon>{{ showAssignmentPreview ? 'check' : (areSectorsAlreadyAssigned() ? 'lock' : 'shuffle') }}</mat-icon>
+              {{ showAssignmentPreview ? 'Hozzárendelés Megerősítése' : (areSectorsAlreadyAssigned() ? 'Szektorok Hozzárendelve' : 'Véletlenszerű Szektor Hozzárendelés') }}
+            </button>
+          </div>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="unified-summary-content">
+            <div class="summary-item">
+              <mat-icon>category</mat-icon>
+              <div>
+                <span class="summary-value">{{ summary?.sector_count || 0 }}</span>
+                <span class="summary-label">Szektorok</span>
+              </div>
+            </div>
+
+            <div class="summary-item">
+              <mat-icon>group</mat-icon>
+              <div>
+                <span class="summary-value">{{ summary?.participant_count || 0 }}</span>
+                <span class="summary-label">Résztvevők</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assignment Preview -->
+          <div *ngIf="showAssignmentPreview" class="assignment-preview">
+            <div class="preview-header">
+              <h3>Szektor Hozzárendelés Előnézet</h3>
+              <button mat-icon-button (click)="cancelAssignmentPreview()" class="close-btn">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            
+            <div class="preview-list">
+              <div *ngFor="let assignment of assignmentPreview" 
+                   class="assignment-item"
+                   [ngClass]="'sector-' + assignment.sectorIndex">
+                <div class="participant-info">
+                  <mat-icon>person</mat-icon>
+                  <span class="participant-name">{{ getParticipantDisplayName(assignment.participant) }}</span>
+                </div>
+                <div class="sector-info">
+                  <span class="sector-badge">Szektor {{ assignment.sector }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="preview-actions">
+              <button mat-button (click)="cancelAssignmentPreview()">Mégse</button>
+              <button mat-raised-button color="primary" (click)="randomAssignParticipants()">
+                <mat-icon>check</mat-icon>
+                Hozzárendelés Megerősítése
+              </button>
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Duplicate Verseny Áttekintés Card -->
+      <mat-card class="unified-summary-card">
+        <mat-card-header>
+          <mat-card-title>Verseny Áttekintés</mat-card-title>
+          <mat-card-subtitle>Szektorok és Résztvevők</mat-card-subtitle>
+          <div class="header-actions" *ngIf="isAdmin()">
+            <button mat-raised-button 
+                    [color]="areSectorsAlreadyAssigned() ? 'warn' : 'accent'" 
+                    (click)="randomAssignParticipants()" 
+                    class="random-assign-btn"
+                    [disabled]="areSectorsAlreadyAssigned()">
+              <mat-icon>{{ showAssignmentPreview ? 'check' : (areSectorsAlreadyAssigned() ? 'lock' : 'shuffle') }}</mat-icon>
+              {{ showAssignmentPreview ? 'Hozzárendelés Megerősítése' : (areSectorsAlreadyAssigned() ? 'Szektorok Hozzárendelve' : 'Véletlenszerű Szektor Hozzárendelés') }}
+            </button>
+          </div>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="details-grid">
+            <!-- Location -->
+            <div class="detail-item" *ngIf="competitionDetails?.competition?.location">
+              <mat-icon>location_on</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Helyszín</span>
+                <span class="detail-value">{{ competitionDetails?.competition?.location }}</span>
+              </div>
+            </div>
+
+            <!-- Organizer -->
+            <div class="detail-item" *ngIf="competitionDetails?.competition?.organizer">
+              <mat-icon>person</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Szervező</span>
+                <span class="detail-value">{{ competitionDetails?.competition?.organizer }}</span>
+              </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="detail-item" *ngIf="competitionDetails?.competition?.contact">
+              <mat-icon>phone</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Elérhetőség</span>
+                <span class="detail-value">{{ competitionDetails?.competition?.contact }}</span>
+              </div>
+            </div>
+
+            <!-- Entry Fee -->
+            <div class="detail-item" *ngIf="competitionDetails?.competition?.entry_fee">
+              <mat-icon>attach_money</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Nevezési díj</span>
+                <span class="detail-value">{{ competitionDetails?.competition?.entry_fee }}</span>
+              </div>
+            </div>
+
+            <!-- Prizes -->
+            <div class="detail-item full-width" *ngIf="competitionDetails?.competition?.prizes">
+              <mat-icon>emoji_events</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Díjazás</span>
+                <span class="detail-value">{{ competitionDetails?.competition?.prizes }}</span>
+              </div>
+            </div>
+
+            <!-- Schedule -->
+            <div class="detail-item full-width" *ngIf="competitionDetails?.competition?.schedule">
+              <mat-icon>schedule</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Időbeosztás</span>
+                <span class="detail-value">{{ formatSchedule(competitionDetails?.competition?.schedule) }}</span>
+              </div>
+            </div>
+
+            <!-- Rules & Equipment -->
+            <div class="detail-item full-width" *ngIf="competitionDetails?.competition?.rules_equipment">
+              <mat-icon>rule</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Szabályok és felszerelés</span>
+                <span class="detail-value">{{ formatRules(competitionDetails?.competition?.rules_equipment) }}</span>
+              </div>
+            </div>
+
+            <!-- General Rules -->
+            <div class="detail-item full-width" *ngIf="competitionDetails?.competition?.general_rules">
+              <mat-icon>gavel</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Általános szabályok</span>
+                <span class="detail-value">{{ formatGeneralRules(competitionDetails?.competition?.general_rules) }}</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- Participants List -->
+    <mat-card class="participants-list-card">
+      <mat-card-header>
+        <mat-card-title>Résztvevők</mat-card-title>
+        <mat-card-subtitle>Összes regisztrált versenyző</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="participants-grid">
+          <div *ngFor="let participant of competitionDetails?.participants || []" 
+               class="participant-card">
+            <div class="participant-avatar">
+              <img *ngIf="participant.photo_url" 
+                   [src]="'http://localhost:3001' + participant.photo_url" 
+                   [alt]="getParticipantDisplayName(participant)"
+                   class="avatar-image">
+              <mat-icon *ngIf="!participant.photo_url" class="avatar-icon">person</mat-icon>
+            </div>
+            <div class="participant-info">
+              <span class="participant-name">{{ getParticipantDisplayName(participant) }}</span>
+              <span class="participant-sector" *ngIf="participant.sector_name">Szektor {{ participant.sector_name }}</span>
+            </div>
+            <div class="participant-stats">
+              <div class="stat-item">
+                <mat-icon>scale</mat-icon>
+                <span class="stat-value">{{ ((participant.total_weight || 0) / 1000).toFixed(1) }}kg</span>
+                <span class="stat-label">Fogás</span>
+              </div>
+              <div class="stat-item">
+                <mat-icon>fishing</mat-icon>
+                <span class="stat-value">{{ getWeighInsCountForParticipant(participant.id) }}</span>
+                <span class="stat-label">Mérés</span>
+              </div>
+              <div *ngIf="isAdmin()" class="stat-item new-measurement-btn" (click)="addNewMeasurement(participant)">
+                <mat-icon>add</mat-icon>
+                <span class="stat-label">Új Mérés</span>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="!competitionDetails?.participants || competitionDetails.participants.length === 0" 
+               class="no-participants">
+            <mat-icon>person_off</mat-icon>
+            <span>Még nincsenek résztvevők</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Sectors Overview -->
+    <mat-card class="sectors-card">
+      <mat-card-header>
+        <mat-card-title>Szektorok Áttekintése</mat-card-title>
+        <mat-card-subtitle>Résztvevők szektorok szerint</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="sectors-grid">
+          <div *ngFor="let sector of competitionDetails.sectors" class="sector-item">
+            <div class="sector-header">
+              <h3>Szektor {{ sector.name }}</h3>
+              <span class="participant-count">
+                {{ getSectorParticipants(sector.name).length }} / {{ sector.max_participants }}
+              </span>
+            </div>
+            
+            <div class="sector-participants">
+              <div *ngFor="let participant of getSectorParticipants(sector.name)" 
+                   class="participant-item">
+                <div class="participant-avatar">
+                  <img *ngIf="participant.photo_url" 
+                       [src]="'http://localhost:3001' + participant.photo_url" 
+                       [alt]="getParticipantDisplayName(participant)"
+                       class="avatar-image">
+                  <mat-icon *ngIf="!participant.photo_url" class="avatar-icon">person</mat-icon>
+                </div>
+                <span class="participant-name">{{ getParticipantDisplayName(participant) }}</span>
+              </div>
+              
+              <div *ngIf="getSectorParticipants(sector.name).length === 0" 
+                   class="empty-sector">
+                <mat-icon>person_off</mat-icon>
+                <span>Még nincsenek résztvevők</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

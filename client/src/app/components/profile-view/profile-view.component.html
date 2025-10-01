@@ -1,0 +1,234 @@
+<div class="profile-view-container">
+  <!-- Back Button -->
+  <button mat-raised-button class="back-button" routerLink="/competitions">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Vissza a Versenyekhez</span>
+  </button>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Profil betöltése...</p>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!isLoading && profile" class="profile-content">
+    
+    <!-- Header Card -->
+    <mat-card class="profile-header-card">
+      <div class="profile-header">
+        <div class="profile-photo-section">
+          <div class="profile-photo">
+            <img [src]="getPhotoUrl()" alt="Profile Photo" 
+                 onerror="this.src='assets/default-avatar.png'">
+          </div>
+        </div>
+
+        <div class="profile-info-section">
+          <h1>{{ profile.firstName }} {{ profile.lastName }}</h1>
+          <p class="profile-role">
+            <mat-icon>{{profile.role === 'admin' ? 'admin_panel_settings' : 'person'}}</mat-icon>
+            {{ profile.role === 'admin' ? 'Adminisztrátor' : 'Horgász' }}
+          </p>
+          
+          <!-- Profile Completeness -->
+          <div class="completeness-indicator">
+            <div class="completeness-bar">
+              <div class="completeness-fill" [style.width.%]="getProfileCompleteness()"></div>
+            </div>
+            <span class="completeness-text">{{ getProfileCompleteness() }}% befejezve</span>
+          </div>
+
+          <button mat-raised-button color="primary" (click)="editProfile()" class="edit-button">
+            <mat-icon>edit</mat-icon>
+            Profil Szerkesztése
+          </button>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Contact Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>contact_mail</mat-icon>
+          Kapcsolattartási Adatok
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>email</mat-icon>
+            <div class="info-details">
+              <span class="info-label">Email cím</span>
+              <span class="info-value">{{ profile.email || 'Nincs megadva' }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <mat-icon>phone</mat-icon>
+            <div class="info-details">
+              <span class="info-label">Telefonszám</span>
+              <span class="info-value">{{ profile.phone || 'Nincs megadva' }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Address Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>home</mat-icon>
+          Lakcím
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="profile.streetAddress">
+            <mat-icon>signpost</mat-icon>
+            <div class="info-details">
+              <span class="info-label">Utca, házszám</span>
+              <span class="info-value">{{ profile.streetAddress }}</span>
+            </div>
+          </div>
+
+          <div class="info-item" *ngIf="profile.city">
+            <mat-icon>location_city</mat-icon>
+            <div class="info-details">
+              <span class="info-label">Város</span>
+              <span class="info-value">{{ profile.city }}</span>
+            </div>
+          </div>
+
+          <div class="info-item" *ngIf="profile.postalCode">
+            <mat-icon>markunread_mailbox</mat-icon>
+            <div class="info-details">
+              <span class="info-label">Irányítószám</span>
+              <span class="info-value">{{ profile.postalCode }}</span>
+            </div>
+          </div>
+
+          <div class="info-item" *ngIf="profile.country">
+            <mat-icon>public</mat-icon>
+            <div class="info-details">
+              <span class="info-label">Ország</span>
+              <span class="info-value">{{ profile.country }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!profile.streetAddress && !profile.city" class="no-address">
+          <mat-icon>info</mat-icon>
+          <p>Még nem adtál meg lakcímet. Töltsd ki a profilodat!</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Account Information Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>account_circle</mat-icon>
+          Fiók Információk
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>event</mat-icon>
+            <div class="info-details">
+              <span class="info-label">Csatlakozás dátuma</span>
+              <span class="info-value">{{ profile.createdAt | date:'yyyy. MM. dd.' }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <mat-icon>verified</mat-icon>
+            <div class="info-details">
+              <span class="info-label">Profil állapot</span>
+              <mat-chip-set>
+                <mat-chip [color]="isProfileComplete() ? 'primary' : 'warn'" highlighted>
+                  {{ isProfileComplete() ? 'Befejezett' : 'Hiányos' }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- My Competitions Card -->
+    <mat-card class="info-card competitions-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>emoji_events</mat-icon>
+          Versenyeim ({{ getRegisteredCompetitionsCount() }})
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div *ngIf="loadingRegistrations" class="loading-section">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Versenyek betöltése...</p>
+        </div>
+
+        <div *ngIf="!loadingRegistrations && registrations.length === 0" class="no-competitions">
+          <mat-icon>info</mat-icon>
+          <p>Még nem jelentkeztél versenyre.</p>
+          <button mat-raised-button color="primary" (click)="goToCompetitions()">
+            <mat-icon>search</mat-icon>
+            Versenyek Böngészése
+          </button>
+        </div>
+
+        <div *ngIf="!loadingRegistrations && registrations.length > 0" class="competitions-list">
+          <div *ngFor="let registration of registrations" class="competition-item">
+            <div class="competition-info">
+              <h3>{{ registration.competition_name }}</h3>
+              <div class="competition-details">
+                <div class="detail-item">
+                  <mat-icon>event</mat-icon>
+                  <span>{{ formatDate(registration.date || '') }}</span>
+                </div>
+                <div class="detail-item" *ngIf="registration.location">
+                  <mat-icon>location_on</mat-icon>
+                  <span>{{ registration.location }}</span>
+                </div>
+                <div class="detail-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Regisztráció: {{ formatDate(registration.registration_date) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="competition-actions">
+              <button mat-raised-button color="primary" (click)="viewCompetition(registration.competition_id)">
+                <mat-icon>visibility</mat-icon>
+                Megtekintés
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button mat-raised-button color="accent" (click)="goToCompetitions()">
+        <mat-icon>emoji_events</mat-icon>
+        Versenyek Megtekintése
+      </button>
+      
+      <button mat-stroked-button (click)="editProfile()">
+        <mat-icon>edit</mat-icon>
+        Profil Szerkesztése
+      </button>
+    </div>
+
+  </div>
+</div>
+

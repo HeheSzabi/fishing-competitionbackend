@@ -1,0 +1,118 @@
+<div class="homepage-container">
+  <!-- Spacing for content positioning -->
+  <br><br><br><br><br><br><br><br><br><br>
+  
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          Horgászat.<br>
+          Verseny.<br> 
+          Élmény.<br>
+        </h1>
+        
+      </div>
+      <div class="hero-visual">
+        <div class="hero-actions">
+          <button *ngIf="isAdmin()" mat-raised-button color="primary" class="cta-button" (click)="navigateToNewCompetition()">
+            <mat-icon>add</mat-icon>
+            Új Verseny Létrehozása
+          </button>
+        </div>
+        <div>
+          <button mat-stroked-button class="secondary-button" (click)="navigateToCompetitions()" style="font-size: 2rem !important; background: #ff6b35 !important; color: #ffffff !important; border: 2px solid #ff6b35 !important; padding: 16px 32px !important; border-radius: 12px !important;">
+            <mat-icon>list</mat-icon>
+            Jelenlegi Versenyek
+          </button>
+        </div>
+        
+        <!-- Submenu under Versenyek -->
+        <div class="versenyek-submenu">
+          <button *ngIf="!isAuthenticated()" mat-raised-button class="submenu-button" (click)="openAuthModal()">
+            <mat-icon>login</mat-icon>
+            Belépés
+          </button>
+          <button *ngIf="!isAuthenticated()" mat-raised-button class="submenu-button" (click)="openAuthModal()">
+            <mat-icon>person_add</mat-icon>
+            Regisztráció
+          </button>
+          <button *ngIf="isAuthenticated() && !isAdmin()" mat-raised-button class="submenu-button" routerLink="/profile">
+            <mat-icon>account_circle</mat-icon>
+            Profilom
+          </button>
+        </div>
+        
+        <div class="fishing-icon">
+          <mat-icon>fishing</mat-icon>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="features-container">
+      <h2 class="features-title"></h2>
+      <div class="features-grid">
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <div class="feature-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <h3>Résztvevők Kezelése</h3>
+            <p>Könnyedén regisztrálhat résztvevőket és szektorokhoz rendelheti őket. Szükség szerint mozgathatja a résztvevőket szektorok között.</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <div class="feature-icon">
+              <mat-icon>scale</mat-icon>
+            </div>
+            <h3>Mérési Rendszer</h3>
+            <p>Rögzítsen több mérést résztvevőnként időbélyegzőkkel és jegyzetekkel. A teljes súlyok automatikus követése.</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <div class="feature-icon">
+              <mat-icon>emoji_events</mat-icon>
+            </div>
+            <h3>Valós Idejű Eredmények</h3>
+            <p>Automatikus szektor pontozás és összesített rangsor. Eredmények megtekintése valós időben a mérések rögzítésekor.</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <div class="feature-icon">
+              <mat-icon>category</mat-icon>
+            </div>
+            <h3>Szektor Kezelés</h3>
+            <p>Hozzon létre több szektort testreszabható résztvevői limitokkal. Tisztességes verseny szektor alapú pontozással.</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="stats-container">
+      <div class="stat-item">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Résztvevők</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">1000+</div>
+        <div class="stat-label">Rögzített Mérések</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Elérhető Támogatás</div>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,171 @@
+// App Header Styles
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 150px;
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: overlay;
+  z-index: 1000;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+  }
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    background: transparent;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .logo-image {
+      width: 160px;
+      height: 120px;
+      object-fit: auto;
+      border-radius: 2px;
+      background-color: transparent;
+      padding: 0px;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .app-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+    }
+  }
+  
+  .nav-section {
+    display: flex;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    .nav-button {
+      color: #fff;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border-radius: 20px;
+      padding: 8px 16px;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      
+      &.active {
+        background-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      
+      mat-icon {
+        margin-right: 8px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+      
+      span {
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+    
+    .home-button {
+      &:hover {
+        background-color: rgba(76, 175, 80, 0.3);
+      }
+    }
+    
+    .new-competition-button {
+      &:hover {
+        background-color: rgba(33, 150, 243, 0.3);
+      }
+    }
+    
+    .sign-out-button {
+      color: #dc2626 !important;
+      background-color: rgba(220, 38, 38, 0.1) !important;
+      border: 2px solid #dc2626 !important;
+      font-weight: bold !important;
+      
+      &:hover {
+        background-color: rgba(220, 38, 38, 0.3) !important;
+        border-color: #dc2626 !important;
+        color: white !important;
+      }
+      
+      &.active {
+        background-color: rgba(220, 38, 38, 0.4) !important;
+        border-color: #dc2626 !important;
+      }
+    }
+  }
+}
+
+
+// Content Styles
+.content {
+  padding: 0;
+  min-height: calc(100vh - 64px);
+  background-color: transparent
+}
+
+
+// Responsive Design
+@media (max-width: 768px) {
+  .app-header {
+    .header-content {
+      padding: 0 16px;
+    }
+    
+    .logo-section {
+      .app-title {
+        font-size: 18px;
+      }
+    }
+    
+    .nav-section {
+      button {
+        span {
+          display: none;
+        }
+        
+        mat-icon {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+  
+}
