@@ -167,6 +167,9 @@ router.post('/', authenticateToken, requireAdmin, upload.single('cover_image'), 
     // Get cover image path if file was uploaded
     const cover_image = req.file ? `/uploads/competitions/${req.file.filename}` : null;
     
+    // Convert date to proper PostgreSQL timestamp
+    const competitionDate = date ? new Date(date).toISOString() : null;
+    
     const client = await pool.connect();
     
     try {
@@ -175,7 +178,7 @@ router.post('/', authenticateToken, requireAdmin, upload.single('cover_image'), 
       // Create competition
       const competitionResult = await client.query(
         'INSERT INTO competitions (name, description, date, location, organizer, contact, entry_fee, prizes, schedule, rules_equipment, general_rules, cover_image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
-        [name, description, date, location, organizer, contact, entry_fee, prizes, schedule, rules_equipment, general_rules, cover_image]
+        [name, description, competitionDate, location, organizer, contact, entry_fee, prizes, schedule, rules_equipment, general_rules, cover_image]
       );
       
       const competitionId = competitionResult.rows[0].id;
